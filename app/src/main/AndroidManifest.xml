@@ -19,7 +19,8 @@
         </activity>
         <activity android:name=".menu" />
         <activity android:name=".login" />
-        <activity android:name=".fragment_main"></activity>
+        <activity android:name=".fragment_main" />
+        <activity android:name=".register"></activity>
     </application>
 
 </manifest>
