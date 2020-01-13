@@ -10,8 +10,9 @@
         android:id="@+id/frame_container"
         android:layout_width="match_parent"
         android:layout_height="match_parent"
-        android:layout_above="@+id/bottomNavigationView" />
-
+        android:layout_above="@+id/bottomNavigationView"
+        android:layout_alignParentLeft="true"
+        android:layout_alignParentRight="true"/>
 
     <android.support.design.widget.BottomNavigationView
         android:id="@+id/bottomNavigationView"
