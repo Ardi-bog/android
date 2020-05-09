@@ -1,0 +1,52 @@
+<?xml version="1.0" encoding="utf-8"?>
+<RelativeLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    xmlns:tools="http://schemas.android.com/tools"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    tools:context=".tambahLagu">
+
+    <TextView
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:text="Tambah Lagu"
+        android:id="@+id/ext"
+        android:textSize="30dp"
+        android:layout_marginBottom="20dp"/>
+    <EditText
+        android:layout_below="@+id/ext"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:hint="Judul Lagu"
+        android:id="@+id/judul"/>
+
+    <EditText
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:hint="Artis"
+        android:layout_below="@+id/judul"
+        android:id="@+id/artis"/>
+    <EditText
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:id="@+id/genre"
+        android:layout_below="@+id/artis"
+        android:hint="Genre"/>
+    <ImageView
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_below="@+id/genre"
+        android:id="@+id/poster"
+        android:src="@drawable/imagepicker_ic_image"
+        android:text="Poster"
+
+        />
+    <Button
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_margin="16dp"
+        android:id="@+id/simpan"
+        android:text="Simpan"
+        android:layout_alignParentBottom="true"
+        android:layout_alignParentRight="true"/>
+</RelativeLayout>

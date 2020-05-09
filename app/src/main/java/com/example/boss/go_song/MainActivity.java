@@ -9,7 +9,6 @@ import android.support.v7.app.AppCompatActivity;
 import android.support.v7.widget.RecyclerView;
 import android.view.MenuItem;
 
-import com.example.boss.go_song.API.BaseApp;
 
 public class MainActivity extends AppCompatActivity {
 

@@ -1,11 +1,13 @@
 package com.example.boss.go_song;
 
-import android.app.ProgressDialog;
-import android.content.Context;
 import android.content.Intent;
-import android.support.v7.app.AppCompatActivity;
 import android.os.Bundle;
-import android.util.Log;
+import android.os.Handler;
+import android.support.design.widget.Snackbar;
+import android.support.design.widget.TextInputLayout;
+import android.support.v7.app.AppCompatActivity;
+import android.text.Html;
+import android.text.Spanned;
 import android.view.View;
 import android.widget.Button;
 import android.widget.EditText;
@@ -13,130 +15,100 @@ import android.widget.ImageButton;
 import android.widget.TextView;
 import android.widget.Toast;
 
-import com.androidquery.callback.AjaxCallback;
-import com.androidquery.callback.AjaxStatus;
-import com.example.boss.go_song.API.BaseApp;
-import com.example.boss.go_song.API.Helper;
-import com.rengwuxian.materialedittext.MaterialEditText;
+public class register extends AppCompatActivity {
 
-import org.json.JSONException;
-import org.json.JSONObject;
-
-import java.io.IOException;
-import java.util.HashMap;
-import java.util.Map;
-
-import okhttp3.ResponseBody;
-import retrofit2.Call;
-import retrofit2.Callback;
-import retrofit2.Response;
-
-public class register extends BaseApp {
-    private EditText email, pass, pass2;
-    private TextView btn_login;
-    private ImageButton btn_reg;
+    EditText editTextEmail;
+    EditText editTextPassword;
+    ImageButton buttonRegister;
+    SqliteHelper sqliteHelper;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_ragister);
-        setupView();
-        btn_login.setOnClickListener(new View.OnClickListener() {
+        sqliteHelper = new SqliteHelper(this);
+        initTextViewLogin();
+        initViews();
+        buttonRegister.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View view) {
-                view.startAnimation(BtnAnimasi);
-                startActivity(new Intent(context, login.class));
-            }
-        });
+                if (validate()) {
+                    String Email = editTextEmail.getText().toString();
+                    String Password = editTextPassword.getText().toString();
 
-        btn_reg.setOnClickListener(new View.OnClickListener() {
-            @Override
-            public void onClick(View view) {
-                registerUser();
+                    //Check in the database is there any user associated with  this email
+                    if (!sqliteHelper.isEmailExists(Email)) {
+
+                        //Email does not exist now add new user to database
+                        sqliteHelper.addUser(new users(null, Email, Password));
+                        Snackbar.make(buttonRegister, "User created successfully! Please Login ", Snackbar.LENGTH_LONG).show();
+                        new Handler().postDelayed(new Runnable() {
+                            @Override
+                            public void run() {
+                                finish();
+                            }
+                        }, Snackbar.LENGTH_LONG);
+                    }else {
+
+                        //Email exists with email input provided so show error user already exist
+                        Snackbar.make(buttonRegister, "User already exists with same email ", Snackbar.LENGTH_LONG).show();
+                    }
+
+
+                }
             }
         });
     }
+    //this method used to set Login TextView click event
+    private void initTextViewLogin() {
+        TextView textViewLogin = (TextView) findViewById(R.id.textViewLogin);
+        textViewLogin.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View view) {
+                finish();
+            }
+        });
+    }
+    //this method is used to connect XML views to its Objects
+    private void initViews() {
+        editTextEmail = (EditText) findViewById(R.id.editTextEmail);
+        editTextPassword = (EditText) findViewById(R.id.editTextPassword);
+        buttonRegister = (ImageButton) findViewById(R.id.btn_reg);
 
-    private void registerUser() {
-        email.setError(null);
-        pass.setError(null);
-        pass2.setError(null);
-        /*check keberadaan teks*/
-        if (Helper.isEmpty(email)) {
-            email.setError("Email masih kosong");
-            email.requestFocus();
-        } else if (Helper.isEmailValid(email)) {
-            email.setError("Format email salah");
-            email.requestFocus();
-        } else if (Helper.isEmpty(pass)) {
-            pass.setError("Password masih kosong");
-            pass.requestFocus();
-        } else if (Helper.isEmpty(pass2)) {
-            pass2.setError("Konfirmasi password masih kosong");
-            pass2.requestFocus();
-            /*check kesamaan password*/
-        } else if (Helper.isCompare(pass, pass2)) {
-            pass2.setError("Password tidak cocok");
-            pass2.requestFocus();
-        } else{
-            /*kirim data ke server*/
+    }
+    public boolean validate() {
+        boolean valid = false;
 
-            /*alamat url http://192.168.154.2/app_pesantren/register.php*/
-            String URL = Helper.BASE_URL + "register.php";
+        //Get values from EditText fields
+        String Email = editTextEmail.getText().toString();
+        String Password = editTextPassword.getText().toString();
 
-            /*menampung nilai*/
-            Map<String, String> param = new HashMap<>();
-            param.put("email", email.getText().toString());
-            param.put("password", pass.getText().toString());
+        //Handling validation for Email field
+        if (!android.util.Patterns.EMAIL_ADDRESS.matcher(Email).matches()) {
+            valid = false;
+            Toast.makeText(getApplicationContext(), "Email tidak valid!",Toast.LENGTH_SHORT).show();
+        } else {
+            valid = true;
+            Toast.makeText(getApplicationContext(), null,Toast.LENGTH_SHORT).show();
+        }
 
-            /*menampilkan progressbar saat mengirim data*/
-            ProgressDialog pd = new ProgressDialog(context);
-            pd.setIndeterminate(true);
-            pd.setCancelable(false);
-            pd.setInverseBackgroundForced(false);
-            pd.setCanceledOnTouchOutside(false);
-            pd.setTitle("Info");
-            pd.setMessage("Sedang menambah data");
-            pd.show();
-
-            try {
-                /*format ambil data*/
-                aQuery.progress(pd).ajax(URL, param, String.class, new AjaxCallback<String>() {
-                    @Override
-                    public void callback(String url, String object, AjaxStatus status) {
-                        /*jika objek tidak kosong*/
-                        if (object != null) {
-                            try {
-                                JSONObject jsonObject = new JSONObject(object);
-                                String result = jsonObject.getString("result");
-                                String msg = jsonObject.getString("msg");
-
-                                /*jika result adalah benar, maka pindah ke activity login dan menampilkan pesan dari server,
-                                serta mematikan activity*/
-                                if (result.equalsIgnoreCase("true")) {
-                                    startActivity(new Intent(context, login.class));
-                                    Helper.pesan(context, msg);
-                                    finish();
-                                } else {
-                                    Helper.pesan(context, msg);
-                                }
-
-                            } catch (JSONException e) {
-                                Helper.pesan(context, "Error convert data json");
-                            }
-                        }
-                    }
-                });
-            } catch (Exception e) {
-                Helper.pesan(context, "Gagal mengambil data");
+        //Handling validation for Password field
+        if (Password.isEmpty()) {
+            valid = false;
+            Toast.makeText(getApplicationContext(), "Password tidak valid!",Toast.LENGTH_SHORT).show();
+        } else {
+            if (Password.length() > 5) {
+                valid = true;
+                Toast.makeText(getApplicationContext(), null,Toast.LENGTH_SHORT).show();
+            } else {
+                valid = false;
+                Toast.makeText(getApplicationContext(), "Minimal 6 karakter",Toast.LENGTH_SHORT).show();
             }
         }
+
+
+        return valid;
     }
-    private void setupView() {
-        email = (EditText) findViewById(R.id.email);
-        pass = (EditText) findViewById(R.id.pass);
-        pass2 = (EditText) findViewById(R.id.pass2);
-        btn_reg = (ImageButton) findViewById(R.id.btn_reg);
-        btn_login = (TextView) findViewById(R.id.btn_login);
-    }
+
 }
+

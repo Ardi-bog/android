@@ -1,74 +1,26 @@
 package com.example.boss.go_song;
 
-
-import android.app.AlertDialog;
-import android.app.ProgressDialog;
-import android.content.Context;
-import android.graphics.Paint;
+import android.content.Intent;
 import android.support.annotation.NonNull;
 import android.support.annotation.Nullable;
+import android.support.design.widget.FloatingActionButton;
 import android.support.v4.app.Fragment;
 import android.os.Bundle;
-import android.support.v4.widget.SwipeRefreshLayout;
-import android.support.v7.app.AppCompatActivity;
-import android.support.v7.widget.LinearLayoutManager;
+import android.support.v7.widget.CardView;
 import android.support.v7.widget.RecyclerView;
-import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
-import android.view.animation.AlphaAnimation;
-import android.widget.Adapter;
-import android.widget.ListView;
-import android.widget.TextView;
-
-import com.android.volley.Response;
-import com.android.volley.VolleyError;
-import com.android.volley.VolleyLog;
-import com.android.volley.toolbox.JsonArrayRequest;
-import com.androidquery.AQuery;
-import com.androidquery.callback.AjaxCallback;
-import com.androidquery.callback.AjaxStatus;
-import com.example.boss.go_song.API.BaseApp;
-import com.example.boss.go_song.API.Helper;
-import com.example.boss.go_song.Lagu.AppController;
-import com.example.boss.go_song.Lagu.adapter;
-import com.example.boss.go_song.Lagu.data;
-import com.example.boss.go_song.Lagu.server;
-
-import org.json.JSONArray;
-import org.json.JSONException;
-import org.json.JSONObject;
-
-import java.util.ArrayList;
-import java.util.HashMap;
-import java.util.List;
-import java.util.Map;
+import android.widget.Button;
 
 /**
  * A simple {@link Fragment} subclass.
  */
 
-public class home extends Fragment implements SwipeRefreshLayout.OnRefreshListener {
+public class home extends Fragment {
 
-    ListView list;
-    SwipeRefreshLayout swipe;
-    List<data> itemList = new ArrayList<data>();
-    adapter Adapter;
-    int success;
-    AlertDialog.Builder dialog;
-    LayoutInflater inflater;
-    View dialogView;
-    String judul, artis;
 
-    private static final String TAG = home.class.getSimpleName();
 
-    private static String url_select = server.URL + "lagu/tampil_lagu.php";
-
-    public static final String TAG_NAMA = "judul";
-    public static final String TAG_ALAMAT = "artis";
-
-    String tag_json_obj = "json_obj_req";
 
     @Nullable
     @Override
@@ -76,77 +28,33 @@ public class home extends Fragment implements SwipeRefreshLayout.OnRefreshListen
                              @Nullable Bundle savedInstanceState) {
         // Inflate the layout for this fragment
         View v = inflater.inflate(R.layout.fragment_home, container, false);
-        swipe = (SwipeRefreshLayout) swipe.findViewById(R.id.swipe_refresh_layout);
-        list = (ListView) list.findViewById(R.id.list);
 
-        Adapter = new adapter(getActivity(), itemList);
-        list.setAdapter(Adapter);
+        CardView genre1 = (CardView) v.findViewById(R.id.genre1);
+        CardView genre2 = (CardView) v.findViewById(R.id.genre2);
+        CardView genre3 = (CardView) v.findViewById(R.id.genre3);
+        CardView genre4 = (CardView) v.findViewById(R.id.genre4);
 
-        // menamilkan widget refresh
-        swipe.setOnRefreshListener(this);
+        genre1.setRadius(5/0);
+        genre2.setRadius(5/0);
+        genre3.setRadius(5/0);
+        genre4.setRadius(5/0);
 
-        swipe.post(new Runnable() {
-                       @Override
-                       public void run() {
-                           swipe.setRefreshing(true);
-                           itemList.clear();
-                           Adapter.notifyDataSetChanged();
-                           callVolley();
-                       }
-                   }
-        );
-        return v;
-    }
+        CardView cv = (CardView) v.findViewById(R.id.cdlagu);
 
-    @Override
-    public void onRefresh() {
-        itemList.clear();
-        Adapter.notifyDataSetChanged();
-        callVolley();
-    }
-
-    private void callVolley() {
-        itemList.clear();
-        Adapter.notifyDataSetChanged();
-        swipe.setRefreshing(true);
-
-        // membuat request JSON
-        JsonArrayRequest jArr = new JsonArrayRequest(url_select, new Response.Listener<JSONArray>() {
+        cv.setOnClickListener(new View.OnClickListener() {
             @Override
-            public void onResponse(JSONArray response) {
-                Log.d(TAG, response.toString());
-
-                // Parsing json
-                for (int i = 0; i < response.length(); i++) {
-                    try {
-                        JSONObject obj = response.getJSONObject(i);
-
-                        data item = new data();
-
-                        item.setJudul(obj.getString(TAG_NAMA));
-                        item.setArtis(obj.getString(TAG_ALAMAT));
-
-                        // menambah item ke array
-                        itemList.add(item);
-                    } catch (JSONException e) {
-                        e.printStackTrace();
-                    }
-                }
-
-                // notifikasi adanya perubahan data pada adapter
-                Adapter.notifyDataSetChanged();
-
-                swipe.setRefreshing(false);
-            }
-        }, new Response.ErrorListener() {
-
-            @Override
-            public void onErrorResponse(VolleyError error) {
-                VolleyLog.d(TAG, "Error: " + error.getMessage());
-                swipe.setRefreshing(false);
+            public void onClick(View view) {
+                Intent intent = new Intent(getActivity(), viewData.class);
+                startActivity(intent);
             }
         });
-        AppController.getInstance().addToRequestQueue(jArr);
+
+
+        return v;
+
+
     }
+
+
 }
 
